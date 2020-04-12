@@ -6,14 +6,15 @@ const initialState = {
 
 export default (state = initialState, { type, payload }) => {
   switch (type) {
-    case actions.AUTH_CLEAN_UP:
+    case actions.STASH_CLEAN_UP:
       return { ...state, error: null };
 
-    case actions.AUTH_SUCCESS:
-      console.log("Successful authentication");
+    case actions.ADD_STASH_SUCCESS:
+      console.log("New stash created successfully.");
       return state;
 
-    case actions.AUTH_FAIL:
+    case actions.ADD_STASH_FAIL:
+      console.log("Stash add error: ", payload);
       return { ...state, error: payload };
 
     default:

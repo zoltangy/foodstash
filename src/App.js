@@ -1,47 +1,25 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useFirestoreConnect } from "react-redux-firebase";
-import { Switch, Route, Link } from "react-router-dom";
+//import { useSelector } from "react-redux";
+//import { useFirestoreConnect } from "react-redux-firebase";
+import { Switch, Route } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
 import SignUp from "./routes/SignUp";
 import SignIn from "./routes/SignIn";
-import { signOut } from "./store/actions/authActions";
+import NavBar from "./components/NavBar";
+import Stashes from "./routes/Stashes/";
 
-function App() {
+export default function App() {
   //useFirestoreConnect([{ collection: "testcollection" }]);
   //const data = useSelector((state) => state.firestore.ordered.testcollection);
-  const profile = useSelector((state) => state.firebase.profile);
-  const auth = useSelector((state) => state.firebase.auth);
-  const dispatch = useDispatch();
+  //const profile = useSelector((state) => state.firebase.profile);
 
-  console.log(profile);
-  console.log(auth);
+  //console.log(profile);
+
   return (
     <>
       <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/signup">Sign Up</Link>
-            </li>
-            <li>
-              <Link to="/signin">Sign In</Link>
-            </li>
-            <li>
-              <Link to="/myStash">myStash</Link>
-            </li>
-            <li>
-              <button type="button" onClick={() => dispatch(signOut())}>
-                Log Out
-              </button>
-            </li>
-          </ul>
-        </nav>
-
+        <NavBar />
         <Switch>
           <PublicOnlyRoute path="/signup">
             <SignUp />
@@ -50,7 +28,7 @@ function App() {
             <SignIn />
           </PublicOnlyRoute>
           <PrivateRoute path="/myStash">
-            <div>mystash</div>
+            <Stashes />
           </PrivateRoute>
           <Route path="/">
             <div>home</div>
@@ -60,5 +38,3 @@ function App() {
     </>
   );
 }
-
-export default App;

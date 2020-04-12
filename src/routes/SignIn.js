@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -8,16 +9,12 @@ import { Link, Grid, Box, Typography, Container } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Formik, Form, Field } from "formik";
 import { TextField } from "formik-material-ui";
-import { useDispatch } from "react-redux";
-import { signIn } from "../store/actions/authActions";
+import { signIn, cleanUp } from "../store/actions/authActions";
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        FoodStash
-      </Link>{" "}
+      {"Copyright © FoodStash "}
       {new Date().getFullYear()}
       {"."}
     </Typography>
@@ -42,11 +39,21 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  errorText: {
+    color: "red",
+  },
 }));
 
 export default function SignUp() {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const error = useSelector((state) => state.auth.error);
+
+  useEffect(() => {
+    return () => {
+      dispatch(cleanUp());
+    };
+  }, [dispatch]);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -65,15 +72,16 @@ export default function SignUp() {
             const errors = {};
             if (!values.email) {
               errors.email = "Required";
+            } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+              errors.email = "Invalid email address";
             }
             if (!values.password) {
               errors.password = "Required";
             }
             return errors;
           }}
-          onSubmit={async (values, { setSubmitting }) => {
+          onSubmit={async (values) => {
             await dispatch(signIn(values));
-            setSubmitting(false);
           }}
         >
           {({ submitForm, isSubmitting }) => (
@@ -103,6 +111,13 @@ export default function SignUp() {
                     fullWidth
                   />
                 </Grid>
+                {error && (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" className={classes.errorText}>
+                      {error}
+                    </Typography>
+                  </Grid>
+                )}
               </Grid>
               <Button
                 onClick={submitForm}

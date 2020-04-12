@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -8,16 +8,13 @@ import { Link, Grid, Box, Typography, Container } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Formik, Form, Field } from "formik";
 import { TextField } from "formik-material-ui";
-import { useDispatch } from "react-redux";
-import { signUp } from "../store/actions/authActions";
+import { useDispatch, useSelector } from "react-redux";
+import { signUp, cleanUp } from "../store/actions/authActions";
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        FoodStash
-      </Link>{" "}
+      {"Copyright © FoodStash "}
       {new Date().getFullYear()}
       {"."}
     </Typography>
@@ -42,11 +39,21 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  errorText: {
+    color: "red",
+  },
 }));
 
 export default function SignUp() {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const error = useSelector((state) => state.auth.error);
+
+  useEffect(() => {
+    return () => {
+      dispatch(cleanUp());
+    };
+  }, [dispatch]);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -81,9 +88,8 @@ export default function SignUp() {
             }
             return errors;
           }}
-          onSubmit={async (values, { setSubmitting }) => {
+          onSubmit={async (values) => {
             await dispatch(signUp(values));
-            setSubmitting(false);
           }}
         >
           {({ submitForm, isSubmitting }) => (
@@ -100,7 +106,6 @@ export default function SignUp() {
                     variant="outlined"
                     inputProps={{ maxLength: 20 }}
                     fullWidth
-                    autoFocus
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -140,6 +145,13 @@ export default function SignUp() {
                     fullWidth
                   />
                 </Grid>
+                {error && (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" className={classes.errorText}>
+                      {error}
+                    </Typography>
+                  </Grid>
+                )}
               </Grid>
               <Button
                 onClick={submitForm}
@@ -151,16 +163,16 @@ export default function SignUp() {
               >
                 Sign Up
               </Button>
-              <Grid container justify="flex-end">
-                <Grid item>
-                  <Link component={RouterLink} to="/signin" variant="body2">
-                    Already have an account? Sign in
-                  </Link>
-                </Grid>
-              </Grid>
             </Form>
           )}
         </Formik>
+        <Grid container justify="flex-end">
+          <Grid item>
+            <Link component={RouterLink} to="/signin" variant="body2">
+              Already have an account? Sign in
+            </Link>
+          </Grid>
+        </Grid>
       </div>
       <Box mt={5}>
         <Copyright />

@@ -1,15 +1,14 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
+//TODO: center on page
 const useStyles = makeStyles((theme) => ({
   loader: {
     display: "inline-block",
     width: "40px",
     height: "40px",
-    border: "5px solid #000",
-    borderColor: "#000 transparent #000 transparent",
-    "&:after": {
-      content: "asd",
+    "&::after": {
+      content: "' '",
       display: "block",
       width: "30px",
       height: "30px",
