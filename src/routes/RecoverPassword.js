@@ -1,13 +1,12 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
-import { Link as RouterLink } from "react-router-dom";
-import { Link, Grid, Typography, Container, Paper } from "@material-ui/core";
+import { Grid, Typography, Container, Paper } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Formik, Form, Field } from "formik";
 import { TextField } from "formik-material-ui";
-import { signIn, cleanUp } from "../store/actions/authActions";
+import { cleanUp } from "../store/actions/authActions";
+import { recoverPassword } from "../store/actions/authActions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,12 +20,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "center",
   },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: "100%",
     marginTop: theme.spacing(3),
   },
   submit: {
@@ -34,10 +29,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignUp() {
+export default function RecoverPassword() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const error = useSelector((state) => state.auth.error);
+  const error = useSelector((state) => state.auth.recoverPassword.error);
+  const message = useSelector((state) => state.auth.recoverPassword.message);
 
   useEffect(() => {
     return () => {
@@ -48,14 +44,12 @@ export default function SignUp() {
   return (
     <Container component={Paper} maxWidth="xs" className={classes.root}>
       <div className={classes.paper}>
-        <Avatar className={classes.avatar}></Avatar>
         <Typography component="h1" variant="h5">
-          Log in to your account
+          Forgot Password
         </Typography>
         <Formik
           initialValues={{
             email: "",
-            password: "",
           }}
           validate={(values) => {
             const errors = {};
@@ -64,13 +58,11 @@ export default function SignUp() {
             } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
               errors.email = "Invalid email address";
             }
-            if (!values.password) {
-              errors.password = "Required";
-            }
             return errors;
           }}
-          onSubmit={async (values) => {
-            await dispatch(signIn(values));
+          onSubmit={async (values, { setSubmitting }) => {
+            await dispatch(recoverPassword(values.email));
+            setSubmitting(false);
           }}
         >
           {({ submitForm, isSubmitting }) => (
@@ -84,26 +76,8 @@ export default function SignUp() {
                     id="email"
                     label="Email Address"
                     variant="outlined"
-                    autoComplete="on"
                     fullWidth
                   />
-                </Grid>
-                <Grid item xs={12}>
-                  <Field
-                    component={TextField}
-                    type="password"
-                    id="password"
-                    name="password"
-                    label="Password"
-                    variant="outlined"
-                    autoComplete="off"
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item xs={12} container justify="flex-end">
-                  <Link component={RouterLink} to="/recoverPassword" variant="body2">
-                    Forgot password?
-                  </Link>
                 </Grid>
                 {error && (
                   <Grid item xs={12}>
@@ -112,23 +86,24 @@ export default function SignUp() {
                     </Typography>
                   </Grid>
                 )}
-              </Grid>
-              <Button
-                disabled={isSubmitting}
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-                type="submit"
-              >
-                Log In
-              </Button>
-              <Grid container justify="flex-end">
-                <Grid item>
-                  <Link component={RouterLink} to="/signup" variant="body2">
-                    Don't have an account yet? Sign up
-                  </Link>
-                </Grid>
+                {message && (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" color="primary">
+                      {message}
+                    </Typography>
+                  </Grid>
+                )}
+
+                <Button
+                  disabled={isSubmitting}
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  type="submit"
+                >
+                  {isSubmitting ? "Sending email..." : "Reset password"}
+                </Button>
               </Grid>
             </Form>
           )}

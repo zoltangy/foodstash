@@ -6,6 +6,8 @@ import { ReactReduxFirebaseProvider, isLoaded } from "react-redux-firebase";
 import { BrowserRouter } from "react-router-dom";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
 
 import firebase from "./firebase";
 import * as serviceWorker from "./serviceWorker";
@@ -13,10 +15,13 @@ import App from "./App";
 import store from "./store";
 import theme from "./theme";
 import Loader from "./components/Loader";
+import { DialogProvider } from "./components/DialogContext";
+import { LoaderProvider } from "./components/LoaderContext";
+import "typeface-roboto";
 
 function AuthIsLoaded({ children }) {
   const auth = useSelector((state) => state.firebase.auth);
-  if (!isLoaded(auth)) return <Loader />;
+  if (!isLoaded(auth)) return <Loader open={true} />;
   return children;
 }
 
@@ -40,9 +45,15 @@ ReactDOM.render(
       <Provider store={store}>
         <ReactReduxFirebaseProvider {...rrfProps}>
           <AuthIsLoaded>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
+            <LoaderProvider>
+              <DialogProvider>
+                <BrowserRouter>
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <App />
+                  </MuiPickersUtilsProvider>
+                </BrowserRouter>
+              </DialogProvider>
+            </LoaderProvider>
           </AuthIsLoaded>
         </ReactReduxFirebaseProvider>
       </Provider>

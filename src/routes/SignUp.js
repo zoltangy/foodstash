@@ -1,29 +1,22 @@
 import React, { useEffect } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
 import { Link as RouterLink } from "react-router-dom";
-import { Link, Grid, Box, Typography, Container } from "@material-ui/core";
-//import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import { Link, Grid, Typography, Container, Paper } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Formik, Form, Field } from "formik";
 import { TextField } from "formik-material-ui";
 import { useDispatch, useSelector } from "react-redux";
 import { signUp, cleanUp } from "../store/actions/authActions";
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © FoodStash "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
 const useStyles = makeStyles((theme) => ({
-  paper: {
+  root: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(4),
     marginTop: theme.spacing(8),
+    backgroundColor: "rgba(255, 255, 255, 0.85);",
+  },
+  paper: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -39,9 +32,6 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
-  errorText: {
-    color: "red",
-  },
 }));
 
 export default function SignUp() {
@@ -56,8 +46,7 @@ export default function SignUp() {
   }, [dispatch]);
 
   return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
+    <Container component={Paper} maxWidth="xs" className={classes.root}>
       <div className={classes.paper}>
         <Avatar className={classes.avatar}></Avatar>
         <Typography component="h1" variant="h5">
@@ -115,7 +104,6 @@ export default function SignUp() {
                     name="lastName"
                     id="lastName"
                     label="Last Name"
-                    autoComplete="lname"
                     variant="outlined"
                     inputProps={{ maxLength: 20 }}
                     fullWidth
@@ -129,7 +117,6 @@ export default function SignUp() {
                     id="email"
                     label="Email Address"
                     variant="outlined"
-                    autoComplete="email"
                     fullWidth
                   />
                 </Grid>
@@ -141,25 +128,25 @@ export default function SignUp() {
                     name="password"
                     label="Password"
                     variant="outlined"
-                    autoComplete="current-password"
+                    autoComplete="off"
                     fullWidth
                   />
                 </Grid>
                 {error && (
                   <Grid item xs={12}>
-                    <Typography variant="subtitle2" className={classes.errorText}>
+                    <Typography variant="subtitle2" color="error">
                       {error}
                     </Typography>
                   </Grid>
                 )}
               </Grid>
               <Button
-                onClick={submitForm}
                 disabled={isSubmitting}
                 fullWidth
                 variant="contained"
                 color="primary"
                 className={classes.submit}
+                type="submit"
               >
                 Sign Up
               </Button>
@@ -169,14 +156,11 @@ export default function SignUp() {
         <Grid container justify="flex-end">
           <Grid item>
             <Link component={RouterLink} to="/signin" variant="body2">
-              Already have an account? Sign in
+              Already have an account? Log in
             </Link>
           </Grid>
         </Grid>
       </div>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
     </Container>
   );
 }

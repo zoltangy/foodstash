@@ -1,23 +1,27 @@
 import React from "react";
+import { Backdrop } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-//TODO: center on page
 const useStyles = makeStyles((theme) => ({
   loader: {
     display: "inline-block",
-    width: "40px",
-    height: "40px",
+    width: "80px",
+    height: "80px",
     "&::after": {
       content: "' '",
       display: "block",
-      width: "30px",
-      height: "30px",
+      width: "70px",
+      height: "70px",
       margin: "1px",
       borderRadius: "50%",
       border: "5px solid #000",
       borderColor: "#000 transparent #000 transparent",
       animation: "$loaderAnim 1.2s linear infinite",
     },
+  },
+  backdrop: {
+    zIndex: 2000,
+    color: "#fff",
   },
 
   "@keyframes loaderAnim": {
@@ -30,7 +34,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Loader() {
+export default function Loader({ open }) {
   const classes = useStyles();
-  return <div className={classes.loader}></div>;
+  return (
+    <Backdrop className={classes.backdrop} open={open}>
+      <div className={classes.loader}></div>
+    </Backdrop>
+  );
 }
