@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { format, formatDistanceToNow, isBefore, addDays } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Typography, Box, Divider, IconButton } from "@material-ui/core";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
@@ -9,6 +9,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import { modifyItem, deleteItem } from "../../store/actions/stashActions";
 import { useDialog } from "../../components/DialogContext";
 import StashItemForm from "./StashItemForm";
+import { isExpiring } from "../../utils";
 
 const useStyles = makeStyles((theme) => ({
   itemName: {
@@ -21,16 +22,6 @@ export default function Item({ item, stashId, formRef, setFormRef }) {
   const profile = useSelector((state) => state.firebase.profile);
   const dispatch = useDispatch();
   const dialog = useDialog();
-
-  const expirySetting =
-    profile.expiry.timeperiod === "week" ? profile.expiry.amount * 7 : profile.expiry.amount;
-
-  let expiring = false;
-  if (item.expiration) {
-    if (isBefore(item.expiration.toDate(), addDays(new Date(), expirySetting))) {
-      expiring = true;
-    }
-  }
 
   const decrease = () => {
     if (item.amount === 1) {
@@ -61,7 +52,7 @@ export default function Item({ item, stashId, formRef, setFormRef }) {
     dispatch(
       modifyItem({
         stashId,
-        itemI: item.id,
+        itemId: item.id,
         amount: item.amount + 1,
       })
     );
@@ -83,38 +74,30 @@ export default function Item({ item, stashId, formRef, setFormRef }) {
               </Typography>
             </Box>
             <Box ml={5}>
-              <Typography variant="caption" color={expiring ? "error" : "initial"}>
+              <Typography
+                variant="caption"
+                color={isExpiring(item.expiration, profile.expiry) ? "error" : "initial"}
+              >
                 {item.expiration
-                  ? "Exp.:" +
-                    format(item.expiration.toDate(), "PPP") +
-                    " (in " +
-                    formatDistanceToNow(item.expiration.toDate()) +
-                    ")"
-                  : null}
+                  ? "Exp.: " + formatDistanceToNow(item.expiration.toDate(), { addSuffix: true })
+                  : "Exp.: -"}
               </Typography>
             </Box>
           </Grid>
           <Grid item xs={4} sm={3} md={2}>
-            <IconButton
-              aria-label="account of current user"
-              color="inherit"
-              onClick={() => decrease(item.id)}
-            >
+            <IconButton aria-label="decrease amount" color="inherit" onClick={() => decrease(item.id)}>
               <ExpandMoreIcon />
             </IconButton>
             {item.amount}
-            <IconButton
-              aria-label="account of current user"
-              color="inherit"
-              onClick={() => increase(item.id)}
-            >
+            <IconButton aria-label="increase amount" color="inherit" onClick={() => increase(item.id)}>
               <ExpandLessIcon />
             </IconButton>
           </Grid>
           <Grid item xs={2} sm={1} md={1}>
             <IconButton
-              aria-label="account of current user"
+              aria-label="edit item"
               color="inherit"
+              edge="end"
               onClick={() => {
                 setFormRef(item.id);
               }}

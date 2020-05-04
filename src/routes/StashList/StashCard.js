@@ -16,6 +16,7 @@ import {
   Button,
   Grid,
 } from "@material-ui/core";
+import Skeleton from "@material-ui/lab/Skeleton";
 import EditIcon from "@material-ui/icons/Edit";
 import ShareIcon from "@material-ui/icons/Share";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
@@ -24,9 +25,11 @@ import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { deleteStash } from "../../store/actions/stashActions";
 import { useDialog } from "../../components/DialogContext";
 import { useLoader } from "../../components/LoaderContext";
-import { formatDistanceToNow, isBefore, addDays } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { useFirestoreConnect, isLoaded } from "react-redux-firebase";
 import CanImg from "../../assets/can.jpg";
+import * as utils from "../../utils";
+import ShareDialog from "../../components/ShareDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,9 +50,6 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     lineHeight: "1rem",
     paddingTop: "6px",
-  },
-  primaryDark: {
-    color: theme.palette.primary.dark,
   },
   actions: {
     justifyContent: "flex-end",
@@ -76,17 +76,15 @@ export default function StashCard(props) {
       storeAs: `${stash.id}-items`,
     },
   ]);
-
-  const items = useSelector((state) => state.firestore.data[`${stash.id}-items`]);
+  const items = useSelector((state) => state.firestore.ordered[`${stash.id}-items`]);
   const profile = useSelector((state) => state.firebase.profile);
-  const expirySetting =
-    profile.expiry.timeperiod === "week" ? profile.expiry.amount * 7 : profile.expiry.amount;
 
   const dispatch = useDispatch();
   const dialog = useDialog();
   const loader = useLoader();
   const loaderRef = useRef();
   const history = useHistory();
+  const [shareDialogToggle, setShareDialogToggle] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = (event) => {
@@ -95,23 +93,6 @@ export default function StashCard(props) {
   const closeMenu = () => {
     setAnchorEl(null);
   };
-
-  if (!isLoaded(items)) {
-    return <div>Loading...</div>;
-  }
-
-  let itemCount = 0;
-  let itemExpiringCount = 0;
-  for (let key in items) {
-    if (items[key] != null) {
-      itemCount += items[key].amount;
-      if (items[key].expiration) {
-        if (isBefore(items[key].expiration.toDate(), addDays(new Date(), expirySetting))) {
-          itemExpiringCount += items[key].amount;
-        }
-      }
-    }
-  }
 
   const deleteStashClicked = () => {
     dialog({
@@ -130,6 +111,11 @@ export default function StashCard(props) {
       .catch(() => closeMenu());
   };
 
+  const shareStashClicked = () => {
+    closeMenu();
+    setShareDialogToggle(!shareDialogToggle);
+  };
+
   const editStashClicked = () => {
     dialog({
       variant: "stashAction",
@@ -146,87 +132,110 @@ export default function StashCard(props) {
       .finally(closeMenu());
   };
 
+  let itemCount;
+  if (isLoaded(items)) {
+    itemCount = utils.getItemCount(items, profile.expiry);
+  }
+
   return (
     <>
       <Card className={classes.root} ref={loaderRef}>
-        <CardHeader
-          action={
-            <IconButton aria-label="settings" onClick={openMenu}>
-              <MoreVertIcon />
-            </IconButton>
-          }
-          title={stash.name}
-          subheader={"Last modified: " + formatDistanceToNow(stash.lastModified.toDate()) + " ago"}
-          subheaderTypographyProps={{ variant: "caption" }}
-        />
-        <CardContent>
-          <Grid container>
-            <Grid item xs={6} container justify="center" className={classes.cardContent}>
-              <img src={CanImg} alt="metal can" />
-              <Typography variant="h6" component="div" className={classes.canText} color="primary">
-                {itemCount}
-
-                <Typography variant="caption" component="div">
-                  {itemCount <= 1 ? "item" : "items"}
-                </Typography>
-              </Typography>
+        {!isLoaded(items) ? (
+          <>
+            <Grid container justify="center" spacing={0}>
+              <Skeleton animation="wave" height={84} width="80%" style={{}} />
+              <Skeleton variant="rect" animation="wave" height={122} width="80%" style={{}} />
+              <Skeleton animation="wave" height={62} width="80%" style={{ paddingBottom: "16px" }} />
             </Grid>
-            <Grid item xs={6} container justify="center" className={classes.cardContent}>
-              {!!itemExpiringCount && (
-                <Typography variant="h6" component="div" className={classes.canText} color="error">
-                  {itemExpiringCount}
-                  <Typography variant="caption" component="div">
-                    expiring
+          </>
+        ) : (
+          <>
+            <CardHeader
+              action={
+                <IconButton
+                  aria-label="options"
+                  aria-controls="stash-options-menu"
+                  aria-haspopup="true"
+                  onClick={openMenu}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+              }
+              title={stash.name}
+              subheader={
+                "Last modified: " + formatDistanceToNow(stash.lastModified.toDate(), { addSuffix: true })
+              }
+              subheaderTypographyProps={{ variant: "caption" }}
+            />
+            <CardContent>
+              <Grid container>
+                <Grid item xs={6} container justify="center" className={classes.cardContent}>
+                  <img src={CanImg} alt="metal can" />
+                  <Typography variant="h6" component="div" className={classes.canText} color="inherit">
+                    {itemCount.total}
+
+                    <Typography variant="caption" component="div">
+                      {itemCount.total <= 1 ? "item" : "items"}
+                    </Typography>
                   </Typography>
-                </Typography>
-              )}
-            </Grid>
-          </Grid>
-        </CardContent>
-        <CardActions disableSpacing className={classes.actions}>
-          <Button onClick={() => history.push("/stash/" + stash.id)}>
-            Open <KeyboardArrowRightIcon />
-          </Button>
-        </CardActions>
+                </Grid>
+                <Grid item xs={6} container justify="center" className={classes.cardContent}>
+                  {!!itemCount.expiring && (
+                    <Typography variant="h6" component="div" className={classes.canText} color="error">
+                      {itemCount.expiring}
+                      <Typography variant="caption" component="div">
+                        expiring
+                      </Typography>
+                    </Typography>
+                  )}
+                </Grid>
+              </Grid>
+            </CardContent>
+            <CardActions disableSpacing className={classes.actions}>
+              <Button onClick={() => history.push("/stash/" + stash.id)} color="primary">
+                Open <KeyboardArrowRightIcon />
+              </Button>
+            </CardActions>
 
-        <Menu
-          id="customized-menu"
-          getContentAnchorEl={null}
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={closeMenu}
-          anchorOrigin={{
-            vertical: "center",
-            horizontal: "left",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-        >
-          <MenuItem className={classes.menuItem} onClick={editStashClicked}>
-            <ListItemIcon>
-              <EditIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary="Edit" />
-          </MenuItem>
-          <MenuItem className={classes.menuItem}>
-            <ListItemIcon>
-              <ShareIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary="Share" />
-          </MenuItem>
-          <MenuItem className={classes.menuItem} onClick={deleteStashClicked}>
-            <ListItemIcon>
-              <DeleteIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary="Delete" />
-          </MenuItem>
-        </Menu>
+            <Menu
+              id="stash-options-menu"
+              getContentAnchorEl={null}
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={closeMenu}
+              anchorOrigin={{
+                vertical: "center",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "center",
+              }}
+            >
+              <MenuItem className={classes.menuItem} onClick={editStashClicked}>
+                <ListItemIcon>
+                  <EditIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Edit" />
+              </MenuItem>
+              <MenuItem className={classes.menuItem} onClick={shareStashClicked}>
+                <ListItemIcon>
+                  <ShareIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Share" />
+              </MenuItem>
+              <MenuItem className={classes.menuItem} onClick={deleteStashClicked}>
+                <ListItemIcon>
+                  <DeleteIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Delete" />
+              </MenuItem>
+            </Menu>
+            <ShareDialog openToggle={shareDialogToggle} stashId={stash.id} />
+          </>
+        )}
       </Card>
     </>
   );
 }
-
-// <a href="https://www.freepik.com/free-photos-vectors/food">Food vector created by macrovector - www.freepik.com</a>

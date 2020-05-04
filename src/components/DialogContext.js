@@ -45,10 +45,10 @@ export const DialogProvider = ({ children }) => {
 
   return (
     <>
-      <DialogContext.Provider value={openDialog} children={children} />
+      <DialogContext.Provider value={openDialog} children={children} aria-labelledby="dialog-title" />
       {dialogState && (
         <Dialog open={Boolean(dialogState)} maxWidth="xs" fullWidth>
-          <DialogTitle id="alert-dialog-title">{dialogState.title}</DialogTitle>
+          <DialogTitle id="dialog-title">{dialogState.title}</DialogTitle>
 
           {dialogState.variant === "confirm" && (
             <>
@@ -76,15 +76,14 @@ export const DialogProvider = ({ children }) => {
                 }
                 return errors;
               }}
-              onSubmit={(values, { setSubmitting }) => {
+              onSubmit={async (values, { setSubmitting }) => {
                 if (dialogState.operation === "add") {
-                  dispatch(addStash(values));
+                  await dispatch(addStash(values));
                 } else {
-                  dispatch(modifyStash({ stashId: dialogState.stashId, ...values }));
+                  await dispatch(modifyStash({ stashId: dialogState.stashId, ...values }));
                 }
                 setSubmitting(false);
-                //TODO?
-                dispatch(cleanUp());
+                await dispatch(cleanUp());
                 handleSubmit();
               }}
             >

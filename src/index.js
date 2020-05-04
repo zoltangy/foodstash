@@ -17,6 +17,8 @@ import theme from "./theme";
 import Loader from "./components/Loader";
 import { DialogProvider } from "./components/DialogContext";
 import { LoaderProvider } from "./components/LoaderContext";
+import { actionTypes } from "redux-firestore";
+import ReactPWAInstallProvider from "react-pwa-install";
 import "typeface-roboto";
 
 function AuthIsLoaded({ children }) {
@@ -29,6 +31,12 @@ const rrfConfig = {
   userProfile: "users",
   useFirestoreForProfile: true,
   attachAuthIsReady: true,
+  onAuthStateChanged: (authData, firebase, dispatch) => {
+    // Clear redux-firestore state if auth does not exist (i.e logout)
+    if (!authData) {
+      dispatch({ type: actionTypes.CLEAR_DATA });
+    }
+  },
 };
 
 const rrfProps = {
@@ -44,17 +52,19 @@ ReactDOM.render(
       <CssBaseline />
       <Provider store={store}>
         <ReactReduxFirebaseProvider {...rrfProps}>
-          <AuthIsLoaded>
-            <LoaderProvider>
-              <DialogProvider>
-                <BrowserRouter>
-                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <App />
-                  </MuiPickersUtilsProvider>
-                </BrowserRouter>
-              </DialogProvider>
-            </LoaderProvider>
-          </AuthIsLoaded>
+          <ReactPWAInstallProvider>
+            <AuthIsLoaded>
+              <LoaderProvider>
+                <DialogProvider>
+                  <BrowserRouter>
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                      <App />
+                    </MuiPickersUtilsProvider>
+                  </BrowserRouter>
+                </DialogProvider>
+              </LoaderProvider>
+            </AuthIsLoaded>
+          </ReactPWAInstallProvider>
         </ReactReduxFirebaseProvider>
       </Provider>
     </ThemeProvider>

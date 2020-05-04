@@ -55,11 +55,9 @@ export const cleanUp = () => ({
 });
 
 export const updateProfile = (data) => async (dispatch, getState, { getFirebase }) => {
-  dispatch({ type: actions.AUTH_UPDATE_PROFILE_START });
   const firebase = getFirebase();
   try {
     await firebase.updateProfile({ ...data });
-    await firebase.auth().currentUser.updateEmail(data.email);
     dispatch({ type: actions.AUTH_UPDATE_PROFILE_SUCCESS, payload: "Profile updated successfully" });
   } catch (err) {
     dispatch({ type: actions.AUTH_UPDATE_PROFILE_FAIL, payload: err.message });
@@ -67,7 +65,6 @@ export const updateProfile = (data) => async (dispatch, getState, { getFirebase 
 };
 
 export const updatePassword = (data) => async (dispatch, getState, { getFirebase }) => {
-  dispatch({ type: actions.AUTH_UPDATE_PASSWORD_START });
   const firebase = getFirebase();
   const user = firebase.auth().currentUser;
   const credential = firebase.auth.EmailAuthProvider.credential(user.email, data.currentPassword);
@@ -85,7 +82,6 @@ export const updatePassword = (data) => async (dispatch, getState, { getFirebase
 };
 
 export const recoverPassword = (email) => async (dispatch, getState, { getFirebase }) => {
-  dispatch({ type: actions.AUTH_RECOVER_PASSWORD_START });
   const firebase = getFirebase();
   try {
     await firebase.auth().sendPasswordResetEmail(email);

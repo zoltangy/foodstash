@@ -33,6 +33,32 @@ export const modifyStash = ({ stashId, ...rest }) => async (dispatch, getState, 
   }
 };
 
+export const shareStash = ({ stashId, email }) => async (dispatch, getState, { getFirebase }) => {
+  const firebase = getFirebase();
+  const firestore = firebase.firestore();
+  try {
+    const doc = await firestore.collection("users").where("email", "==", email).get();
+    if (doc.size === 0) {
+      throw new Error("No registered user with this email address");
+    }
+    let userid;
+    doc.forEach((element) => {
+      userid = element.id;
+    });
+    await firestore
+      .collection("stashes")
+      .doc(stashId)
+      .update({
+        users: firebase.firestore.FieldValue.arrayUnion(userid),
+        lastModified: firebase.firestore.Timestamp.now(),
+      });
+
+    dispatch({ type: actions.SHARE_STASH_SUCCESS, payload: "Stash shared successfully." });
+  } catch (err) {
+    dispatch({ type: actions.SHARE_STASH_FAIL, payload: err.message });
+  }
+};
+
 export const cleanUp = () => ({
   type: actions.STASH_CLEAN_UP,
 });
@@ -98,8 +124,8 @@ export const deleteItem = ({ stashId, itemId }) => async (dispatch, getState, { 
     await firestore.collection("stashes").doc(stashId).update({
       lastModified: firebase.firestore.Timestamp.now(),
     });
-    dispatch({ type: actions.MODIFY_ITEM_SUCCESS });
+    dispatch({ type: actions.DELETE_ITEM_SUCCESS });
   } catch (err) {
-    dispatch({ type: actions.MODIFY_ITEM_FAIL, payload: err.message });
+    dispatch({ type: actions.DELETE_ITEM_FAIL, payload: err.message });
   }
 };

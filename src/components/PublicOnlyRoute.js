@@ -14,7 +14,7 @@ export default function PublicOnlyRoute({ component: Component, ...rest }) {
         ) : (
           <Redirect
             to={{
-              pathname: "/login",
+              pathname: "/",
               state: { from: props.location },
             }}
           />

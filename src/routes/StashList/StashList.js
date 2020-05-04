@@ -6,9 +6,13 @@ import StashCard from "./StashCard";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
 import { useDialog } from "../../components/DialogContext";
+import Loader from "../../components/Loader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    marginBottom: theme.spacing(4),
+  },
+  card: {
     width: 345,
     height: "100%",
     display: "flex",
@@ -21,12 +25,19 @@ const useStyles = makeStyles((theme) => ({
 export default function StashList(props) {
   const classes = useStyles();
   const uid = useSelector((state) => state.firebase.auth.uid);
-  useFirestoreConnect([{ collection: "stashes", where: ["users", "array-contains", uid] }]);
-  const stashes = useSelector((state) => state.firestore.data.stashes);
+  useFirestoreConnect([
+    {
+      collection: "stashes",
+      where: ["users", "array-contains", uid],
+      orderBy: ["lastModified", "desc"],
+      storeAs: "stashList",
+    },
+  ]);
+  const stashes = useSelector((state) => state.firestore.ordered.stashList);
   const dialog = useDialog();
 
   if (!isLoaded(stashes)) {
-    return <div>Loading...</div>;
+    return <Loader open={true} />;
   }
 
   const addStashClicked = () => {
@@ -44,35 +55,25 @@ export default function StashList(props) {
   };
 
   return (
-    <>
-      <Container>
-        <Grid container spacing={3} justify="center">
-          <Grid item>
-            <Card className={classes.root} onClick={addStashClicked}>
-              <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p" align="center">
-                  <AddIcon />
-                  <br />
-                  Add stash
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          {stashes !== undefined && stashes !== null
-            ? Object.keys(stashes)
-                .filter((key) => stashes[key] != null)
-                .map((key) => {
-                  let stash = stashes[key];
-
-                  return (
-                    <Grid item key={key}>
-                      <StashCard stash={{ id: key, ...stash }} />
-                    </Grid>
-                  );
-                })
-            : null}
+    <Container className={classes.root}>
+      <Grid container spacing={3} justify="center">
+        <Grid item>
+          <Card className={classes.card} onClick={addStashClicked}>
+            <CardContent>
+              <Typography variant="body2" color="primary" component="p" align="center">
+                <AddIcon />
+                <br />
+                Add stash
+              </Typography>
+            </CardContent>
+          </Card>
         </Grid>
-      </Container>
-    </>
+        {stashes.map((stash) => (
+          <Grid item key={stash.id}>
+            <StashCard stash={stash} />
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   );
 }

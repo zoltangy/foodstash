@@ -72,16 +72,11 @@ export default function StashItemForm({ initialValues, onSubmitFunc, onCancelFun
               </Box>
             </Grid>
             <Grid item xs={2} container justify="center">
-              <IconButton
-                aria-label="account of current user"
-                color="primary"
-                onClick={submitForm}
-                disabled={isSubmitting}
-              >
+              <IconButton aria-label="submit" color="primary" onClick={submitForm} disabled={isSubmitting}>
                 <CheckIcon />
               </IconButton>
               <IconButton
-                aria-label="account of current user"
+                aria-label="cancel"
                 color="secondary"
                 onClick={onCancelFunc}
                 disabled={isSubmitting}

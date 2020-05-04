@@ -1,6 +1,5 @@
 import React from "react";
-//import { useSelector } from "react-redux";
-//import { useFirestoreConnect } from "react-redux-firebase";
+import { useSelector } from "react-redux";
 import { Switch, Route } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
@@ -13,11 +12,14 @@ import StashDetails from "./routes/StashDetails";
 import Profile from "./routes/Profile";
 import { makeStyles } from "@material-ui/core/styles";
 import backround from "./assets/background.png";
+import LandingPage from "./routes/LandingPage";
+import Footer from "./components/Footer";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     minHeight: "100vh",
     position: "relative",
+    paddingBottom: "100px", // footer height
     "&::after": {
       content: "' '",
       background: `url(${backround})`,
@@ -35,27 +37,20 @@ const useStyles = makeStyles((theme) => ({
 
 export default function App() {
   const classes = useStyles();
-  // const uid = useSelector((state) => state.firebase.auth.uid);
-  //useFirestoreConnect([{ collection: "testcollection" }]);
-  //const data = useSelector((state) => state.firestore.ordered.testcollection);
-  //const profile = useSelector((state) => state.firebase.profile);
-
-  //console.log(profile);
+  const uid = useSelector((state) => state.firebase.auth.uid);
 
   return (
-    <>
-      <div className={classes.root}>
-        <NavBar />
-        <Switch>
-          <PublicOnlyRoute path="/signup" component={SignUp} />
-          <PublicOnlyRoute path="/signin" component={SignIn} />
-          <PublicOnlyRoute path="/recoverPassword" component={RecoverPassword} />
-          <PrivateRoute path="/stashlist" component={StashList} />
-          <PrivateRoute path="/stash/:id" component={StashDetails} />
-          <PrivateRoute path="/profile" component={Profile} />
-          <Route path="/" component={() => <div>home</div>} />
-        </Switch>
-      </div>
-    </>
+    <div className={classes.root}>
+      <NavBar />
+      <Switch>
+        <PublicOnlyRoute path="/signup" component={SignUp} />
+        <PublicOnlyRoute path="/signin" component={SignIn} />
+        <PublicOnlyRoute path="/recoverPassword" component={RecoverPassword} />
+        <PrivateRoute path="/stash/:id" component={StashDetails} />
+        <PrivateRoute path="/profile" component={Profile} />
+        {!uid ? <Route path="/" component={LandingPage} /> : <PrivateRoute path="/" component={StashList} />}
+      </Switch>
+      <Footer />
+    </div>
   );
 }

@@ -42,73 +42,75 @@ export default function RecoverPassword() {
   }, [dispatch]);
 
   return (
-    <Container component={Paper} maxWidth="xs" className={classes.root}>
-      <div className={classes.paper}>
-        <Typography component="h1" variant="h5">
-          Forgot Password
-        </Typography>
-        <Formik
-          initialValues={{
-            email: "",
-          }}
-          validate={(values) => {
-            const errors = {};
-            if (!values.email) {
-              errors.email = "Required";
-            } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-              errors.email = "Invalid email address";
-            }
-            return errors;
-          }}
-          onSubmit={async (values, { setSubmitting }) => {
-            await dispatch(recoverPassword(values.email));
-            setSubmitting(false);
-          }}
-        >
-          {({ submitForm, isSubmitting }) => (
-            <Form className={classes.form}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Field
-                    component={TextField}
-                    type="email"
-                    name="email"
-                    id="email"
-                    label="Email Address"
-                    variant="outlined"
-                    fullWidth
-                  />
-                </Grid>
-                {error && (
+    <Container maxWidth="xs">
+      <Container component={Paper} maxWidth="xs" className={classes.root}>
+        <div className={classes.paper}>
+          <Typography component="h1" variant="h5">
+            Forgot Password
+          </Typography>
+          <Formik
+            initialValues={{
+              email: "",
+            }}
+            validate={(values) => {
+              const errors = {};
+              if (!values.email) {
+                errors.email = "Required";
+              } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+                errors.email = "Invalid email address";
+              }
+              return errors;
+            }}
+            onSubmit={async (values, { setSubmitting }) => {
+              await dispatch(recoverPassword(values.email));
+              setSubmitting(false);
+            }}
+          >
+            {({ submitForm, isSubmitting }) => (
+              <Form className={classes.form}>
+                <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <Typography variant="subtitle2" color="error">
-                      {error}
-                    </Typography>
+                    <Field
+                      component={TextField}
+                      type="email"
+                      name="email"
+                      id="email"
+                      label="Email Address"
+                      variant="outlined"
+                      fullWidth
+                    />
                   </Grid>
-                )}
-                {message && (
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle2" color="primary">
-                      {message}
-                    </Typography>
-                  </Grid>
-                )}
+                  {error && (
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle2" color="error">
+                        {error}
+                      </Typography>
+                    </Grid>
+                  )}
+                  {message && (
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle2" color="primary">
+                        {message}
+                      </Typography>
+                    </Grid>
+                  )}
 
-                <Button
-                  disabled={isSubmitting}
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={classes.submit}
-                  type="submit"
-                >
-                  {isSubmitting ? "Sending email..." : "Reset password"}
-                </Button>
-              </Grid>
-            </Form>
-          )}
-        </Formik>
-      </div>
+                  <Button
+                    disabled={isSubmitting}
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    type="submit"
+                  >
+                    {isSubmitting ? "Sending email..." : "Reset password"}
+                  </Button>
+                </Grid>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </Container>
     </Container>
   );
 }

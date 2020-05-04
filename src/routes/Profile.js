@@ -15,6 +15,7 @@ import { Formik, Form, Field } from "formik";
 import { TextField, Select } from "formik-material-ui";
 import { isLoaded } from "react-redux-firebase";
 import { updateProfile, updatePassword, cleanUp } from "../store/actions/authActions";
+import Loader from "../components/Loader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,10 +47,8 @@ export default function Profile(props) {
   const classes = useStyles();
   const profile = useSelector((state) => state.firebase.profile);
   const updateProfileError = useSelector((state) => state.auth.updateProfile.error);
-  const updateProfileLoading = useSelector((state) => state.auth.updateProfile.loading);
   const updateProfileMessage = useSelector((state) => state.auth.updateProfile.message);
   const updatePasswordError = useSelector((state) => state.auth.updatePassword.error);
-  const updatePasswordLoading = useSelector((state) => state.auth.updatePassword.loading);
   const updatePasswordMessage = useSelector((state) => state.auth.updatePassword.message);
   const dispatch = useDispatch();
 
@@ -60,7 +59,7 @@ export default function Profile(props) {
   }, [dispatch]);
 
   if (!isLoaded(profile)) {
-    return <div></div>;
+    return <Loader open={true} />;
   }
 
   return (
@@ -88,6 +87,12 @@ export default function Profile(props) {
                 errors.email = "Required";
               } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
                 errors.email = "Invalid email address";
+              }
+              if (!values.amount) {
+                errors.amount = "Required";
+              }
+              if (values.amount <= 0) {
+                errors.amount = "Must be greater than zero";
               }
               return errors;
             }}
@@ -121,7 +126,6 @@ export default function Profile(props) {
                       variant="outlined"
                       inputProps={{ maxLength: 20 }}
                       fullWidth
-                      disabled={isSubmitting || updateProfileLoading}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -134,7 +138,6 @@ export default function Profile(props) {
                       variant="outlined"
                       inputProps={{ maxLength: 20 }}
                       fullWidth
-                      disabled={isSubmitting || updateProfileLoading}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -146,7 +149,7 @@ export default function Profile(props) {
                       label="Email Address"
                       variant="outlined"
                       fullWidth
-                      disabled={isSubmitting || updateProfileLoading}
+                      disabled
                     />
                   </Grid>
                   <Grid item xs={12} sm={6} container>
@@ -193,13 +196,13 @@ export default function Profile(props) {
                   )}
                   <Grid item xs={12} sm={6} container justify="flex-end">
                     <Button
-                      disabled={isSubmitting || updateProfileLoading}
+                      disabled={isSubmitting}
                       variant="contained"
                       color="primary"
                       className={classes.submit}
                       type="submit"
                     >
-                      {updateProfileLoading ? "Updating..." : "Update Profile"}
+                      {isSubmitting ? "Updating..." : "Update Profile"}
                     </Button>
                   </Grid>
                 </Grid>
@@ -255,7 +258,6 @@ export default function Profile(props) {
                       variant="outlined"
                       autoComplete="off"
                       fullWidth
-                      disabled={isSubmitting || updatePasswordLoading}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -268,7 +270,6 @@ export default function Profile(props) {
                       variant="outlined"
                       autoComplete="off"
                       fullWidth
-                      disabled={isSubmitting || updatePasswordLoading}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -281,7 +282,6 @@ export default function Profile(props) {
                       variant="outlined"
                       autoComplete="off"
                       fullWidth
-                      disabled={isSubmitting || updatePasswordLoading}
                     />
                   </Grid>
                   {updatePasswordError && (
@@ -300,13 +300,13 @@ export default function Profile(props) {
                   )}
                   <Grid item xs={12} sm={6} container justify="flex-end">
                     <Button
-                      disabled={isSubmitting || updatePasswordLoading}
+                      disabled={isSubmitting}
                       variant="contained"
                       color="primary"
                       className={classes.submit}
                       type="submit"
                     >
-                      {updatePasswordLoading ? "Changing..." : "Change password"}
+                      {isSubmitting ? "Changing..." : "Change password"}
                     </Button>
                   </Grid>
                 </Grid>
