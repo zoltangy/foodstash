@@ -1,19 +1,22 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Switch, Route } from "react-router-dom";
+import { makeStyles } from "@material-ui/core/styles";
+
 import PrivateRoute from "./components/PrivateRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
+import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
+
 import SignUp from "./routes/SignUp";
 import SignIn from "./routes/SignIn";
 import RecoverPassword from "./routes/RecoverPassword";
-import NavBar from "./components/NavBar";
 import StashList from "./routes/StashList";
 import StashDetails from "./routes/StashDetails";
 import Profile from "./routes/Profile";
-import { makeStyles } from "@material-ui/core/styles";
-import backround from "./assets/background.png";
 import LandingPage from "./routes/LandingPage";
-import Footer from "./components/Footer";
+
+import backround from "./assets/background.png";
 
 const useStyles = makeStyles((theme) => ({
   root: {

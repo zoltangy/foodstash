@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { signOut } from "../store/actions/authActions";
 import { isLoaded, isEmpty } from "react-redux-firebase";
 import {
   Button,
@@ -17,9 +16,11 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import MenuIcon from "@material-ui/icons/Menu";
+import { useReactPWAInstall } from "react-pwa-install";
+
+import { signOut } from "../store/actions/authActions";
 import logo from "../assets/logo.png";
 import icon from "../assets/icon.png";
-import { useReactPWAInstall } from "react-pwa-install";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -149,7 +150,6 @@ export default function NavBar(props) {
                   color="inherit"
                   className={classes.menuButton}
                   onClick={() => {
-                    handleClose();
                     dispatch(signOut());
                   }}
                 >

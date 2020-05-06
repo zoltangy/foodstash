@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider, useSelector } from "react-redux";
-import { createFirestoreInstance } from "redux-firestore";
+import { createFirestoreInstance, actionTypes } from "redux-firestore";
 import { ReactReduxFirebaseProvider, isLoaded } from "react-redux-firebase";
 import { BrowserRouter } from "react-router-dom";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -15,9 +15,8 @@ import App from "./App";
 import store from "./store";
 import theme from "./theme";
 import Loader from "./components/Loader";
-import { DialogProvider } from "./components/DialogContext";
+import { DialogProvider } from "./components/Dialogs/DialogContext";
 import { LoaderProvider } from "./components/LoaderContext";
-import { actionTypes } from "redux-firestore";
 import ReactPWAInstallProvider from "react-pwa-install";
 import "typeface-roboto";
 

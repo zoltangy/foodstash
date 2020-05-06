@@ -23,13 +23,12 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { deleteStash } from "../../store/actions/stashActions";
-import { useDialog } from "../../components/DialogContext";
+import { useDialog } from "../../components/Dialogs/DialogContext";
 import { useLoader } from "../../components/LoaderContext";
 import { formatDistanceToNow } from "date-fns";
 import { useFirestoreConnect, isLoaded } from "react-redux-firebase";
 import CanImg from "../../assets/can.jpg";
 import * as utils from "../../utils";
-import ShareDialog from "../../components/ShareDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -84,7 +83,6 @@ export default function StashCard(props) {
   const loader = useLoader();
   const loaderRef = useRef();
   const history = useHistory();
-  const [shareDialogToggle, setShareDialogToggle] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = (event) => {
@@ -112,24 +110,26 @@ export default function StashCard(props) {
   };
 
   const shareStashClicked = () => {
-    closeMenu();
-    setShareDialogToggle(!shareDialogToggle);
+    dialog({
+      variant: "shareStash",
+      catchOnCancel: true,
+      title: "Share stash",
+      stashId: stash.id,
+    })
+      .then()
+      .catch(() => closeMenu());
   };
 
   const editStashClicked = () => {
     dialog({
-      variant: "stashAction",
+      variant: "editStash",
       catchOnCancel: true,
       title: "Edit stash",
-      buttonOK: "Update",
-      buttonNOK: "Cancel",
       initialValues: { name: stash.name, description: stash.description },
       stashId: stash.id,
-      operation: "edit",
     })
-      .then()
-      .catch()
-      .finally(closeMenu());
+      .then(() => closeMenu())
+      .catch(() => closeMenu());
   };
 
   let itemCount;
@@ -232,7 +232,6 @@ export default function StashCard(props) {
                 <ListItemText primary="Delete" />
               </MenuItem>
             </Menu>
-            <ShareDialog openToggle={shareDialogToggle} stashId={stash.id} />
           </>
         )}
       </Card>

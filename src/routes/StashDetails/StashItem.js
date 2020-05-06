@@ -7,7 +7,7 @@ import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import EditIcon from "@material-ui/icons/Edit";
 import { modifyItem, deleteItem } from "../../store/actions/stashActions";
-import { useDialog } from "../../components/DialogContext";
+import { useDialog } from "../../components/Dialogs/DialogContext";
 import StashItemForm from "./StashItemForm";
 import { isExpiring } from "../../utils";
 

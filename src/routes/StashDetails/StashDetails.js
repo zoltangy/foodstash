@@ -18,7 +18,7 @@ import {
   Link,
 } from "@material-ui/core";
 import { addItem, deleteStash } from "../../store/actions/stashActions";
-import { useDialog } from "../../components/DialogContext";
+import { useDialog } from "../../components/Dialogs/DialogContext";
 import EditIcon from "@material-ui/icons/Edit";
 import AddIcon from "@material-ui/icons/Add";
 import ShareIcon from "@material-ui/icons/Share";
@@ -27,7 +27,6 @@ import { useLoader } from "../../components/LoaderContext";
 import StashItem from "./StashItem";
 import StashItemForm from "./StashItemForm";
 import * as utils from "../../utils";
-import ShareDialog from "../../components/ShareDialog";
 import Loader from "../../components/Loader";
 
 const useStyles = makeStyles((theme) => ({
@@ -80,7 +79,6 @@ export default function StashDetails(props) {
   const loader = useLoader();
   const loaderRef = useRef();
   const [formRef, setFormRef] = useState(null);
-  const [shareDialogToggle, setShareDialogToggle] = useState(false);
 
   if (!isLoaded(stash) || !isLoaded(items) || !isLoaded(profile)) {
     return <Loader open={true} />;
@@ -116,19 +114,19 @@ export default function StashDetails(props) {
 
   const editStashClicked = () => {
     dialog({
-      variant: "stashAction",
-      catchOnCancel: true,
+      variant: "editStash",
       title: "Edit stash",
-      buttonOK: "Update",
-      buttonNOK: "Cancel",
       initialValues: { name: stash.name, description: stash.description },
       stashId: stashId,
-      operation: "edit",
     });
   };
 
   const shareStashClicked = () => {
-    setShareDialogToggle(!shareDialogToggle);
+    dialog({
+      variant: "shareStash",
+      title: "Share stash",
+      stashId: stashId,
+    });
   };
 
   const formSubmitAdd = (values) => {
@@ -264,7 +262,6 @@ export default function StashDetails(props) {
         <ItemList itemList={items} />
         {items.length > 2 && <AddItemButton variant="bottom" />}
       </Card>
-      <ShareDialog openToggle={shareDialogToggle} stashId={stashId} />
     </Container>
   );
 }

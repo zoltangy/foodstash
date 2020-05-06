@@ -4,7 +4,7 @@ import lightGreen from "@material-ui/core/colors/lightGreen";
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: lightGreen[500],
+      main: lightGreen[600],
       contrastText: "#123622",
     },
   },

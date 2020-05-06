@@ -5,7 +5,7 @@ import { Container, Grid, Card, CardContent, Typography } from "@material-ui/cor
 import StashCard from "./StashCard";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
-import { useDialog } from "../../components/DialogContext";
+import { useDialog } from "../../components/Dialogs/DialogContext";
 import Loader from "../../components/Loader";
 
 const useStyles = makeStyles((theme) => ({
@@ -42,13 +42,9 @@ export default function StashList(props) {
 
   const addStashClicked = () => {
     dialog({
-      variant: "stashAction",
-      catchOnCancel: false,
+      variant: "addStash",
       title: "Add stash",
-      buttonOK: "Add",
-      buttonNOK: "Cancel",
       initialValues: { name: "", description: "" },
-      operation: "add",
     })
       .then()
       .catch();
